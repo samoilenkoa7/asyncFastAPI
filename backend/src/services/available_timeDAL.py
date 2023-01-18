@@ -16,6 +16,13 @@ class AvailableTimeDAL:
     def __init__(self, session: AsyncSession = Depends(get_async_session)):
         self.session = session
 
+    async def check_if_user_is_teacher(self, user_id) -> bool:
+        statements = select(models.User).filter(models.User.id == user_id)
+        user_instance = await self.session.execute(statements)
+        user_instance = user_instance.scalars().one()
+        print(user_instance.kind)
+        return user_instance.kind == 'teacher'
+
     async def _get(self, time: datetime.datetime, user_id: uuid.UUID) -> models.AvailableTime:
         print(time, user_id)
         statement = select(models.AvailableTime)\
@@ -30,10 +37,11 @@ class AvailableTimeDAL:
             user_id: uuid.UUID,
             available_time_data: CreateAvailableTime
     ) -> models.AvailableTime:
-        available_time_instance = models.AvailableTime(time=available_time_data.time, user_id=user_id)
-        self.session.add(available_time_instance)
-        await self.session.commit()
-        return available_time_instance
+        if await self.check_if_user_is_teacher(user_id):
+            available_time_instance = models.AvailableTime(time=available_time_data.time, user_id=user_id)
+            self.session.add(available_time_instance)
+            await self.session.commit()
+            return available_time_instance
 
     async def get_available_time_by_time(self,
                                          time: datetime.datetime,

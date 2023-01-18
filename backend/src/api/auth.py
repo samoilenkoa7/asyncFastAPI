@@ -28,7 +28,7 @@ async def authenticate_user(
     return await service.authenticate_user(user_credentials.username, user_credentials.password)
 
 
-@router.post('/user', response_model=User)
+@router.get('/user', response_model=User)
 async def get_user(
         user: models.User = Depends(get_current_user)
 ):

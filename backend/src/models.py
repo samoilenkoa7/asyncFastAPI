@@ -21,6 +21,10 @@ class User(Base):
     is_active = sa.Column(sa.Boolean(), default=True)
 
     available_time = relationship('AvailableTime', backref='teacher')
+    booking = relationship('BookingTime', backref='booking_creator')
+
+    def __repr__(self):
+        return f'User {self.name} {self.surname}'
 
 
 class AvailableTime(Base):
@@ -29,3 +33,18 @@ class AvailableTime(Base):
     id = sa.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     time = sa.Column(sa.DateTime(), nullable=False)
     user_id = sa.Column(UUID(as_uuid=True), sa.ForeignKey('users.id'), nullable=False)
+    booking_info = relationship('BookingTime', uselist=False, backref='available_time_info')
+
+    def __repr__(self):
+        return f'Available time at {self.time} \n For user {self.user_id}'
+
+
+class BookingTime(Base):
+    __tablename__ = 'booking_time'
+
+    id = sa.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    available_time_id = sa.Column(UUID(as_uuid=True), sa.ForeignKey('available_time.id'), unique=True)
+    user_id = sa.Column(UUID(as_uuid=True), sa.ForeignKey('users.id'))
+
+    def __repr__(self):
+        return f'Booking time for user with id {self.user_id} on time id {self.available_time_id}'

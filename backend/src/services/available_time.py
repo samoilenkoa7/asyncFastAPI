@@ -1,7 +1,8 @@
 import datetime
 import uuid
 
-from fastapi import Depends, Response
+from fastapi import Depends, Response, HTTPException
+from starlette import status
 
 from .available_timeDAL import AvailableTimeDAL
 from src import models
@@ -17,7 +18,11 @@ class AvailableTimeService:
             self,
             available_time_data: CreateAvailableTime,
             user_id: uuid.UUID) -> models.AvailableTime:
-        return await self.db_service.create_new_available_time(user_id, available_time_data)
+        new_available_time = await self.db_service.create_new_available_time(user_id, available_time_data)
+        if new_available_time is None:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                                detail='Only teachers can create new available time')
+        return new_available_time
 
     async def get_available_time_by_time(
             self,
