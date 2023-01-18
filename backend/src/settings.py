@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     jwt_algorithm: str = 'HS256'
     jwt_expiration: int = 3600 # seconds
     jwt_secret: str
+    mailchimp_token: str
+    mailchimp_server_prefix: str = 'us12'
 
 
 settings = Settings(

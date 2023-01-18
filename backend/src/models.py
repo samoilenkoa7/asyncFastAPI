@@ -18,6 +18,7 @@ class User(Base):
     email = sa.Column(sa.String(200), unique=True, nullable=False)
     hashed_password = sa.Column(sa.String())
     kind = sa.Column(sa.String(10), default='student')
+    mailchimp_list_id = sa.Column(sa.String, nullable=True)
     is_active = sa.Column(sa.Boolean(), default=True)
 
     available_time = relationship('AvailableTime', backref='teacher')

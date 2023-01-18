@@ -22,7 +22,8 @@ class UserDAL:
             surname=user_data.surname,
             email=user_data.email,
             hashed_password=user_data.password,
-            kind=user_data.kind
+            kind=user_data.kind,
+            mailchimp_list_id=user_data.mailchimp_list_id
         )
         self.session.add(new_user)
         await self.session.commit()

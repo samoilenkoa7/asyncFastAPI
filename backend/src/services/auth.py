@@ -1,6 +1,6 @@
 from src.serializers.serializers import UUIDSerializer
 
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, Depends, BackgroundTasks
 from starlette import status
 from jose import jwt, JWTError
 from pydantic import ValidationError
@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from passlib.hash import bcrypt
 from fastapi.security import OAuth2PasswordBearer
 
+from src.services.mailchimp_service import MailchimpService
 from src.settings import settings
 from src.models import User
 from src.pydantic_models import user_model
@@ -91,10 +92,17 @@ class AuthService:
             raise cls.EXCEPTION from None
         return user
 
-    def __init__(self, user_database_service: UserDAL = Depends()):
+    def __init__(self,
+                 user_database_service: UserDAL = Depends(),
+                 mailchimp_servie: MailchimpService = Depends()):
         self.database_service = user_database_service
+        self.mailchimp_service = mailchimp_servie
 
-    async def create_new_user(self, user_data: user_model.CreateUser) -> Token:
+    async def create_new_user(self,
+                              user_data: user_model.CreateUser) -> Token:
+        if user_data.kind == 'teacher':
+            mailchimp_user_id = self.mailchimp_service.create_new_mailchimp_list(user_data)
+            user_data.mailchimp_list_id = mailchimp_user_id
         user_data.password = self._create_password_hash(user_data.password)
         user_instance = await self.database_service.create_user(user_data)
         return self._create_token(user_instance)

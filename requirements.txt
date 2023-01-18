@@ -10,3 +10,4 @@ greenlet
 passlib[bcrypt]
 python-jose
 python-multipart
+mailchimp3

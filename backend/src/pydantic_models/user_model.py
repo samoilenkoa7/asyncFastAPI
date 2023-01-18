@@ -27,6 +27,7 @@ class BaseUser(BaseModel):
 
 class CreateUser(BaseUser):
     password: str
+    mailchimp_list_id: str | None
 
     @validator('name', 'surname')
     def validate_name(cls, value):
